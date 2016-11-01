@@ -1,0 +1,19 @@
+cart = Output.cart = Input.cart
+
+board_count = cart.line_items.select do |l|
+  l.variant.product.product_type == "Swegway6"
+end.reduce(0) { |a, l| a + l.quantity }
+
+cover = cart.line_items.select { |l| l.variant.product.product_type == "Silicone Cover" }
+cover.each do |l|
+  break if board_count == 0
+  if board_count < l.quantity
+    split = l.split(take: board_count)
+    split.change_line_price(Money.zero, message: "Happy Halloween!")
+    cart.line_items << split
+    break
+  else
+    l.change_line_price(Money.zero, message: "Happy Halloween!")
+    board_count -= l.quantity
+  end
+end
